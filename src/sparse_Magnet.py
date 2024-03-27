@@ -15,7 +15,7 @@ from torch_geometric.datasets import WebKB, WikipediaNetwork, WikiCS
 # internal files
 from utils.Citation import *
 from layer.sparse_magnet import *
-from utils.preprocess import geometric_dataset_sparse, load_syn
+from utils.preprocess import geometric_dataset_sparse, load_syn, load_traffic
 from utils.save_settings import write_log
 from utils.hermitian import hermitian_decomp_sparse
 
@@ -84,6 +84,8 @@ def main(args):
         load_func = citation_datasets
     elif load_func == 'citeseer_npz':
         load_func = citation_datasets
+    elif load_func == 'spatial':
+        load_func = load_traffic
     else:
         load_func = load_syn
 

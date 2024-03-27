@@ -94,6 +94,34 @@ def load_raw_cora(q=0, path="../pygcn/data/cora/", dataset="cora", save_pk = Fal
 
     return adj, multi_order_laplacian, v, labels
 
+def load_traffic(q, path = '../../dataset/spatial/', save_pk = False, K = 1):
+    #only graph structure without features
+    # create the graph, networkx graph
+    G = nx.read_edgelist(path + '/traffic.edges', nodetype=int, delimiter = ',', data=(('weight',float),), create_using=nx.DiGraph())
+
+    # create the label set
+    label = {}
+    with open(path + '/traffic.node_labels') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            label[int(row[0])] = int(row[1])
+
+    # get the adj matrix
+    A = nx.adjacency_matrix(G, nodelist = sorted(list(label.keys())), weight = 'weight')
+
+    L, w, v = hermitian_decomp(A.todense(), q, norm=True, is_weighted= True)
+    multi_order_laplacian = cheb_poly(L, K)
+
+    if save_pk:
+        traffic = {}
+        traffic['A'] = A
+        traffic['L'] = multi_order_laplacian
+        traffic['eigen_col'] = v
+        traffic['label'] = label
+        pk.dump(traffic, open(path + '/traffic'+str(q)+'_'+str(K)+'.pk', 'wb'))
+
+    return A, multi_order_laplacian, v, label
+
 
 def load_syn(root, name = None):
     data = pk.load(open(root + '.pk', 'rb'))
