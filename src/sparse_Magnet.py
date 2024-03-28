@@ -85,7 +85,7 @@ def main(args):
     elif load_func == 'citeseer_npz':
         load_func = citation_datasets
     elif load_func == 'spatial':
-        load_func = load_traffic
+        load_func = traffic_datasets
     else:
         load_func = load_syn
 

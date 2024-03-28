@@ -194,13 +194,16 @@ def geometric_dataset_sparse(q, K, root='../dataset/data/tmp/', subset='Cornell'
 
     if load_only:
         return X, label, train_mask, val_mask, test_mask
-    
+    if dataset == 'traffic_datasets':
+        is_weighted = True
+    else : 
+        is_weighted = False
     try:
         L = hermitian_decomp_sparse(f_node, e_node, size, q, norm=True, laplacian=laplacian, 
-            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = dataset[0].edge_weight)
+            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = dataset[0].edge_weight, is_weighted = is_weighted)
     except AttributeError:
         L = hermitian_decomp_sparse(f_node, e_node, size, q, norm=True, laplacian=laplacian, 
-            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = None)
+            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = None, is_weighted=is_weighted)
 
     multi_order_laplacian = cheb_poly_sparse(L, K)
     

@@ -51,7 +51,46 @@ def citation_datasets(root="./data", alpha=0.1, data_split = 10):
     masks = {}
     masks['train'], masks['val'], masks['test'] = [], [] , []
     for split in range(data_split):
-        mask = train_test_split(labels, seed=split, train_examples_per_class=20, val_size=500, test_size=None)
+        mask = train_test_split(labels, seed=split, train_examples_per_class=10, val_size=500, test_size=None)
+
+        mask['train'] = torch.from_numpy(mask['train']).bool()
+        mask['val'] = torch.from_numpy(mask['val']).bool()
+        mask['test'] = torch.from_numpy(mask['test']).bool()
+    
+        masks['train'].append(mask['train'].unsqueeze(-1))
+        masks['val'].append(mask['val'].unsqueeze(-1))
+        masks['test'].append(mask['test'].unsqueeze(-1))
+
+    labels = torch.from_numpy(labels).long()
+    data = Data(x=features, edge_index=indices, edge_weight=None, y=labels)
+
+    data.train_mask = torch.cat(masks['train'], axis=-1) 
+    data.val_mask   = torch.cat(masks['val'], axis=-1)
+    data.test_mask  = torch.cat(masks['test'], axis=-1)
+
+    return [data]
+
+def traffic_datasets(root="./data", alpha=0.1, data_split = 10):
+    # path = os.path.join(save_path, dataset)
+    #os.makedirs(path, exist_ok=True)
+    #dataset_path = os.path.join(path, '{}.npz'.format(dataset))
+    g = load_npz_dataset(root)
+    adj, features, labels = g['A'], g['X'], g['z']
+    
+    coo = adj.tocoo()
+    values = coo.data
+    indices = np.vstack((coo.row, coo.col))
+    indices = torch.from_numpy(indices).long()
+    features = torch.from_numpy(features.todense()).float()
+
+    # Set new random splits:
+    # * 20 * num_classes labels for training
+    # * 42 labels for validation
+    # * the rest for testing
+    masks = {}
+    masks['train'], masks['val'], masks['test'] = [], [] , []
+    for split in range(data_split):
+        mask = train_test_split(labels, seed=split, train_examples_per_class=20, val_size=42, test_size=None)
 
         mask['train'] = torch.from_numpy(mask['train']).bool()
         mask['val'] = torch.from_numpy(mask['val']).bool()
