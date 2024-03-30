@@ -20,184 +20,9 @@ from torch_scatter import scatter_add
 import scipy
 from torch_geometric.data import Dataset
 
-def load_citation_link(root="./data"):
-    g = load_npz_dataset(root)
-    adj = g['A']
-    coo = adj.tocoo()
-    values = coo.data
-    indices = np.vstack((coo.row, coo.col))
-    indices = torch.from_numpy(indices).long()
-    
-    data = Data(x=values, edge_index=indices, edge_weight=None, y=None)
-    return [data]
+from torch_geometric.data import Data
+import scipy.sparse as sp
 
-def citation_datasets(root="./data", alpha=0.1, data_split = 10):
-    # path = os.path.join(save_path, dataset)
-    #os.makedirs(path, exist_ok=True)
-    #dataset_path = os.path.join(path, '{}.npz'.format(dataset))
-    g = load_npz_dataset(root)
-    adj, features, labels = g['A'], g['X'], g['z']
-    
-    coo = adj.tocoo()
-    values = coo.data
-    indices = np.vstack((coo.row, coo.col))
-    indices = torch.from_numpy(indices).long()
-    features = torch.from_numpy(features.todense()).float()
-
-    # Set new random splits:
-    # * 20 * num_classes labels for training
-    # * 500 labels for validation
-    # * the rest for testing
-    masks = {}
-    masks['train'], masks['val'], masks['test'] = [], [] , []
-    for split in range(data_split):
-        mask = train_test_split(labels, seed=split, train_examples_per_class=10, val_size=500, test_size=None)
-
-        mask['train'] = torch.from_numpy(mask['train']).bool()
-        mask['val'] = torch.from_numpy(mask['val']).bool()
-        mask['test'] = torch.from_numpy(mask['test']).bool()
-    
-        masks['train'].append(mask['train'].unsqueeze(-1))
-        masks['val'].append(mask['val'].unsqueeze(-1))
-        masks['test'].append(mask['test'].unsqueeze(-1))
-
-    labels = torch.from_numpy(labels).long()
-    data = Data(x=features, edge_index=indices, edge_weight=None, y=labels)
-
-    data.train_mask = torch.cat(masks['train'], axis=-1) 
-    data.val_mask   = torch.cat(masks['val'], axis=-1)
-    data.test_mask  = torch.cat(masks['test'], axis=-1)
-
-    return [data]
-
-def traffic_datasets(root="./data", alpha=0.1, data_split = 10):
-    # path = os.path.join(save_path, dataset)
-    #os.makedirs(path, exist_ok=True)
-    #dataset_path = os.path.join(path, '{}.npz'.format(dataset))
-    g = load_npz(root + '/traffic.npz')
-    adj, features, labels = g['A'], g['X'], g['z']
-    
-    coo = adj.tocoo()
-    values = coo.data
-    indices = np.vstack((coo.row, coo.col))
-    indices = torch.from_numpy(indices).long()
-    features = torch.from_numpy(features.todense()).float()
-
-    # Set new random splits:
-    # * 20 * num_classes labels for training
-    # * 42 labels for validation
-    # * the rest for testing
-    masks = {}
-    masks['train'], masks['val'], masks['test'] = [], [] , []
-    for split in range(data_split):
-        mask = train_test_split(labels, seed=split, train_examples_per_class=20, val_size=42, test_size=None)
-
-        mask['train'] = torch.from_numpy(mask['train']).bool()
-        mask['val'] = torch.from_numpy(mask['val']).bool()
-        mask['test'] = torch.from_numpy(mask['test']).bool()
-    
-        masks['train'].append(mask['train'].unsqueeze(-1))
-        masks['val'].append(mask['val'].unsqueeze(-1))
-        masks['test'].append(mask['test'].unsqueeze(-1))
-
-    labels = torch.from_numpy(labels).long()
-    data = Data(x=features, edge_index=indices, edge_weight=None, y=labels)
-
-    data.train_mask = torch.cat(masks['train'], axis=-1) 
-    data.val_mask   = torch.cat(masks['val'], axis=-1)
-    data.test_mask  = torch.cat(masks['test'], axis=-1)
-
-    return [data]
-
-def load_npz(file_name):
-    """Load a graph from a Numpy binary file.
-
-    Parameters
-    ----------
-    file_name : str
-        Name of the file to load.
-
-    Returns
-    -------
-    graph : dict
-        Dictionary that contains:
-            * 'A' : The adjacency matrix in sparse matrix format
-            * 'X' : The attribute matrix in sparse matrix format
-            * 'z' : The ground truth class labels
-            * Further dictionaries mapping node, class and attribute IDs
-
-    """
-    if not file_name.endswith('.npz'):
-        file_name += file_name.split('/')[-2]+'.npz'
-    with np.load(file_name, allow_pickle=True) as loader:
-        loader = dict(loader)
-        A = loader['adj']
-
-        X = sp.csr_matrix(loader['features'])
-
-        z = loader.get('labels')
-
-        graph = {
-            'A': A,
-            'X': X,
-            'z': z
-        }
-
-        return graph
-    
-def load_npz_dataset(file_name):
-    """Load a graph from a Numpy binary file.
-
-    Parameters
-    ----------
-    file_name : str
-        Name of the file to load.
-
-    Returns
-    -------
-    graph : dict
-        Dictionary that contains:
-            * 'A' : The adjacency matrix in sparse matrix format
-            * 'X' : The attribute matrix in sparse matrix format
-            * 'z' : The ground truth class labels
-            * Further dictionaries mapping node, class and attribute IDs
-
-    """
-    if not file_name.endswith('.npz'):
-        file_name += file_name.split('/')[-2]+'.npz'
-    with np.load(file_name, allow_pickle=True) as loader:
-        loader = dict(loader)
-        edge_index = loader['adj_indices'].copy()
-        A = sp.csr_matrix((loader['adj_data'], loader['adj_indices'],
-                           loader['adj_indptr']), shape=loader['adj_shape'])
-
-        X = sp.csr_matrix((loader['attr_data'], loader['attr_indices'],
-                           loader['attr_indptr']), shape=loader['attr_shape'])
-
-        z = loader.get('labels')
-
-        graph = {
-            'A': A,
-            'X': X,
-            'z': z
-        }
-
-        idx_to_node = loader.get('idx_to_node')
-        if idx_to_node:
-            idx_to_node = idx_to_node.tolist()
-            graph['idx_to_node'] = idx_to_node
-
-        idx_to_attr = loader.get('idx_to_attr')
-        if idx_to_attr:
-            idx_to_attr = idx_to_attr.tolist()
-            graph['idx_to_attr'] = idx_to_attr
-
-        idx_to_class = loader.get('idx_to_class')
-        if idx_to_class:
-            idx_to_class = idx_to_class.tolist()
-            graph['idx_to_class'] = idx_to_class
-
-        return graph
 
 def sample_per_class(random_state, labels, num_examples_per_class, forbidden_indices=None):
     num_samples = labels.shape[0]
@@ -217,12 +42,15 @@ def sample_per_class(random_state, labels, num_examples_per_class, forbidden_ind
          for class_index in range(len(sample_indices_per_class))
          ])
 
-
 def get_train_val_test_split(random_state,
                              labels,
                              train_examples_per_class=None, val_examples_per_class=None,
                              test_examples_per_class=None,
                              train_size=None, val_size=None, test_size=None):
+    # print(labels.item())
+    # print(len(labels.item()))
+    # print(type(labels.item()))
+    # num_samples = len(labels.item())
     num_samples = labels.shape[0]
     num_classes = labels.max()+1
     remaining_indices = list(range(num_samples))
@@ -313,14 +141,78 @@ def train_test_split(labels, seed, train_examples_per_class=None, val_examples_p
     mask['test'] = test_mask
     return mask
 
-if __name__ == "__main__":
-    data = citation_datasets(root="../../dataset/data/nips_data/cora_ml/raw/", dataset='cora_ml')
-    print(data.train_mask.shape)
-    # print_dataset_info()
-    # get_npz_data(dataset='amazon_photo')
-    ### already fixed split dataset!!!
-    #if opt.dataset == 'all':
-    #    for mode in ['cora', 'cora_ml','citeseer','dblp','pubmed']:
-    #        get_npz_data(dataset = mode)
-    #else:
-    #    get_npz_data(dataset = opt.dataset)
+
+def traffic_datasets(root="./data", name = '', alpha=0.1, data_split = 10):
+    # path = os.path.join(save_path, dataset)
+    #os.makedirs(path, exist_ok=True)
+    #dataset_path = os.path.join(path, '{}.npz'.format(dataset))
+    g = load_npz(root + '/traffic.npz')
+    adj, features, labels = g['A'], g['X'], g['z']
+    coo = adj.tocoo()
+    values = coo.data
+    indices = np.vstack((coo.row, coo.col))
+    indices = torch.from_numpy(indices).long()
+    features = torch.from_numpy(features.todense()).float()
+    
+    # Set new random splits:
+    # * 20 * num_classes labels for training
+    # * 42 labels for validation
+    # * the rest for testing
+    masks = {}
+    masks['train'], masks['val'], masks['test'] = [], [] , []
+    for split in range(data_split):
+        mask = train_test_split(labels, seed=split, train_examples_per_class=10, val_size=42, test_size=None)
+
+        mask['train'] = torch.from_numpy(mask['train']).bool()
+        mask['val'] = torch.from_numpy(mask['val']).bool()
+        mask['test'] = torch.from_numpy(mask['test']).bool()
+    
+        masks['train'].append(mask['train'].unsqueeze(-1))
+        masks['val'].append(mask['val'].unsqueeze(-1))
+        masks['test'].append(mask['test'].unsqueeze(-1))
+
+    labels = torch.from_numpy(labels).long()
+    data = Data(x=features, edge_index=indices, edge_weight=None, y=labels)
+
+    data.train_mask = torch.cat(masks['train'], axis=-1) 
+    data.val_mask   = torch.cat(masks['val'], axis=-1)
+    data.test_mask  = torch.cat(masks['test'], axis=-1)
+
+    return [data]
+
+
+def load_npz(file_name):
+    """Load a graph from a Numpy binary file.
+
+    Parameters
+    ----------
+    file_name : str
+        Name of the file to load.
+
+    Returns
+    -------
+    graph : dict
+        Dictionary that contains:
+            * 'A' : The adjacency matrix in sparse matrix format
+            * 'X' : The attribute matrix in sparse matrix format
+            * 'z' : The ground truth class labels
+            * Further dictionaries mapping node, class and attribute IDs
+
+    """
+    if not file_name.endswith('.npz'):
+        file_name += file_name.split('/')[-2]+'.npz'
+    with np.load(file_name, allow_pickle=True) as loader:
+        loader = dict(loader)
+        A = sp.csr_matrix(loader['adj'].any())
+
+        X = sp.csr_matrix(loader['features'])
+
+        z = loader['labels']
+
+        graph = {
+            'A': A,
+            'X': X,
+            'z': z
+        }
+
+        return graph

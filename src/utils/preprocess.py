@@ -178,7 +178,8 @@ def geometric_dataset_sparse(q, K, root='../dataset/data/tmp/', subset='Cornell'
     if subset == '':
         dataset = dataset(root=root)
     else:
-        dataset = dataset(root=root, name=subset)
+        dataset = dataset(root=root)
+        # dataset = dataset(root=root, name=subset) #FIXME: this line is wrong
 
     size = dataset[0].y.size(-1)
     #adj = torch.zeros(size, size).data.numpy().astype('uint8')
@@ -194,7 +195,7 @@ def geometric_dataset_sparse(q, K, root='../dataset/data/tmp/', subset='Cornell'
 
     if load_only:
         return X, label, train_mask, val_mask, test_mask
-    if dataset == 'traffic_datasets':
+    if subset == 'spatial':
         is_weighted = True
     else : 
         is_weighted = False

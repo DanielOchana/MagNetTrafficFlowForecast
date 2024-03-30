@@ -148,6 +148,9 @@ gcn_appr = False, edge_weight = None,  is_weighted = False):
     if gcn_appr:
         A += diag
 
+    dense_mat = A.toarray().astype(int)
+    np.savetxt("A_coo.csv", dense_mat, delimiter="," , fmt='%i')
+
     if is_weighted:
         A_non_weight = np.where(A > 0, 1, 0)
         A_sym = 0.5*(A_non_weight + A_non_weight.T) # symmetrized adjacency
