@@ -153,7 +153,8 @@ def traffic_datasets(root="./data", name = '', alpha=0.1, data_split = 10):
     indices = np.vstack((coo.row, coo.col))
     indices = torch.from_numpy(indices).long()
     features = torch.from_numpy(features.todense()).float()
-    
+    # print(f'row:{coo.row}, col:{coo.col}, nnz:{len(coo.row)}, indices:{indices.shape}')
+    # print(f'adj shape: {adj.shape}, COO = {coo.shape}, ROW = {coo.row.shape}, COL = {coo.col.shape}')
     # Set new random splits:
     # * 20 * num_classes labels for training
     # * 42 labels for validation
@@ -172,7 +173,7 @@ def traffic_datasets(root="./data", name = '', alpha=0.1, data_split = 10):
         masks['test'].append(mask['test'].unsqueeze(-1))
 
     labels = torch.from_numpy(labels).long()
-    data = Data(x=features, edge_index=indices, edge_weight=None, y=labels)
+    data = Data(x=features, edge_index=indices, edge_weight=adj, y=labels)
 
     data.train_mask = torch.cat(masks['train'], axis=-1) 
     data.val_mask   = torch.cat(masks['val'], axis=-1)

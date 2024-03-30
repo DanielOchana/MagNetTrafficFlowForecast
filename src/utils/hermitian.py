@@ -139,23 +139,22 @@ def cheb_poly_sparse(A, K):
 
 def hermitian_decomp_sparse(row, col, size, q = 0.25, norm = True, laplacian = True, max_eigen = 2, 
 gcn_appr = False, edge_weight = None,  is_weighted = False):
-    if edge_weight is None:
-        A = coo_matrix((np.ones(len(row)), (row, col)), shape=(size, size), dtype=np.float32)
-    else:
-        A = coo_matrix((edge_weight, (row, col)), shape=(size, size), dtype=np.float32)
-    
+
+    A_NW = coo_matrix((np.ones(len(row)), (row, col)), shape=(size, size), dtype=np.float32)
+
+    A = coo_matrix(edge_weight, shape=(size, size), dtype=np.float32)
+    print(A.shape)
+    print(A)
     diag = coo_matrix( (np.ones(size), (np.arange(size), np.arange(size))), shape=(size, size), dtype=np.float32)
     if gcn_appr:
         A += diag
 
+    # print(f'row:{row}, col:{col}, size:{size}, nnz:{len(row)}')
     dense_mat = A.toarray().astype(int)
     np.savetxt("A_coo.csv", dense_mat, delimiter="," , fmt='%i')
 
-    if is_weighted:
-        A_non_weight = np.where(A > 0, 1, 0)
-        A_sym = 0.5*(A_non_weight + A_non_weight.T) # symmetrized adjacency
-    else : 
-        A_sym = 0.5*(A + A.T) # symmetrized adjacency
+    A_sym = 0.5*(A_NW + A_NW.T) # symmetrized adjacency
+    #A_sym = 0.5*(A + A.T) # symmetrized adjacency
 
     if norm:
         d = np.array(A_sym.sum(axis=0))[0] # out degree
