@@ -74,7 +74,7 @@ def traffic_datasets(root="./data", alpha=0.1, data_split = 10):
     # path = os.path.join(save_path, dataset)
     #os.makedirs(path, exist_ok=True)
     #dataset_path = os.path.join(path, '{}.npz'.format(dataset))
-    g = load_npz_dataset(root)
+    g = load_npz(root + '/traffic.npz')
     adj, features, labels = g['A'], g['X'], g['z']
     
     coo = adj.tocoo()
@@ -109,6 +109,42 @@ def traffic_datasets(root="./data", alpha=0.1, data_split = 10):
 
     return [data]
 
+def load_npz(file_name):
+    """Load a graph from a Numpy binary file.
+
+    Parameters
+    ----------
+    file_name : str
+        Name of the file to load.
+
+    Returns
+    -------
+    graph : dict
+        Dictionary that contains:
+            * 'A' : The adjacency matrix in sparse matrix format
+            * 'X' : The attribute matrix in sparse matrix format
+            * 'z' : The ground truth class labels
+            * Further dictionaries mapping node, class and attribute IDs
+
+    """
+    if not file_name.endswith('.npz'):
+        file_name += file_name.split('/')[-2]+'.npz'
+    with np.load(file_name, allow_pickle=True) as loader:
+        loader = dict(loader)
+        A = loader['adj']
+
+        X = sp.csr_matrix(loader['features'])
+
+        z = loader.get('labels')
+
+        graph = {
+            'A': A,
+            'X': X,
+            'z': z
+        }
+
+        return graph
+    
 def load_npz_dataset(file_name):
     """Load a graph from a Numpy binary file.
 
