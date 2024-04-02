@@ -113,11 +113,18 @@ def main(args):
     for i in range(len(L)):
         L_img.append( sparse_mx_to_torch_sparse_tensor(L[i].imag).to(device) )
         L_real.append( sparse_mx_to_torch_sparse_tensor(L[i].real).to(device) )
-
     label = torch.from_numpy(_label_[np.newaxis]).to(device)
     X_img  = torch.FloatTensor(X).to(device)
     X_real = torch.FloatTensor(X).to(device)
     criterion = nn.NLLLoss()
+
+    # with open('L_real.csv', 'w', newline='') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerows(L_real)
+    
+    # L_real_tensor = torch.stack(L_real)
+    # # v = torch.linalg.eigvals(L_real_tensor)
+    # print(f'L_real_tensor: {L_real_tensor}')
 
     splits = train_mask.shape[1]
     if len(test_mask.shape) == 1:
@@ -127,7 +134,8 @@ def main(args):
     results = np.zeros((splits, 4))
     for split in range(splits):
         log_str_full = ''
-
+        X_real[torch.isnan(X_real)] = 0
+        X_img[torch.isnan(X_img)] = 0
         model = ChebNet(X_real.size(-1), L_real, L_img, K = args.K, label_dim=cluster_dim, layer = args.layer,
                                 activation = args.activation, num_filter = args.num_filter, dropout=args.dropout).to(device)    
  
@@ -142,6 +150,7 @@ def main(args):
         # Train/Validation/Test
         #################################
         best_test_err = 1000.0
+        best_test_err = 100000.0
         early_stopping = 0
         for epoch in range(args.epochs):
             start_time = time.time()
@@ -189,6 +198,7 @@ def main(args):
             # Save weights
             ####################
             save_perform = test_loss.detach().item()
+            # print(f'save_perform: {save_perform}, best_test_err: {best_test_err}')
             if save_perform <= best_test_err:
                 early_stopping = 0
                 best_test_err = save_perform

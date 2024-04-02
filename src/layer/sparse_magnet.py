@@ -115,14 +115,19 @@ class ChebNet(nn.Module):
     def forward(self, real, imag):
         real, imag = self.Chebs((real, imag))
         x = torch.cat((real, imag), dim = -1)
+        # print(f'x cat: {torch.norm(x)}')
         
         if self.dropout > 0:
             x = F.dropout(x, self.dropout, training=self.training)
 
         x = x.unsqueeze(0)
+        # print(f'x unsqueeze: {torch.norm(x)}')
         x = x.permute((0,2,1))
+        # print(f'x permute: {torch.norm(x)}')
         x = self.Conv(x)
+        # print(f'x conv: {torch.norm(x)}')
         x = F.log_softmax(x, dim=1)
+        # print(f'x log_softmax: {torch.norm(x)}')
         return x
 
 class ChebNet_Edge(nn.Module):
