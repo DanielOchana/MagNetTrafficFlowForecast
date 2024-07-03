@@ -174,7 +174,7 @@ def geometric_dataset(q, K, root='../dataset/data/tmp/', subset='Cornell', datas
 
 # sparse version of function geometric_dataset() 
 def geometric_dataset_sparse(q, K, root='../dataset/data/tmp/', subset='Cornell', dataset=WebKB, 
-                        load_only = False, save_pk = True, laplacian = True, gcn_appr = False):
+                        load_only = False, save_pk = True, laplacian = True, gcn_appr = False, Nsym=False):
     if subset == '':
         dataset = dataset(root=root)
     else:
@@ -201,10 +201,10 @@ def geometric_dataset_sparse(q, K, root='../dataset/data/tmp/', subset='Cornell'
         is_weighted = False
     try:
         L = hermitian_decomp_sparse(f_node, e_node, size, q, norm=True, laplacian=laplacian, 
-            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = dataset[0].edge_weight, is_weighted = is_weighted)
+            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = dataset[0].edge_weight, is_weighted = is_weighted, Nsym=Nsym)
     except AttributeError:
         L = hermitian_decomp_sparse(f_node, e_node, size, q, norm=True, laplacian=laplacian, 
-            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = None, is_weighted=is_weighted)
+            max_eigen = 2.0, gcn_appr = gcn_appr, edge_weight = None, is_weighted=is_weighted, Nsym=Nsym)
 
     multi_order_laplacian = cheb_poly_sparse(L, K)
     

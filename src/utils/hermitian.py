@@ -138,12 +138,10 @@ def cheb_poly_sparse(A, K):
     return multi_order_laplacian
 
 def hermitian_decomp_sparse(row, col, size, q = 0.25, norm = True, laplacian = True, max_eigen = 2, 
-gcn_appr = False, edge_weight = None,  is_weighted = False):
+gcn_appr = False, edge_weight = None,  is_weighted = False, Nsym=False):
 
-    # A_NW = coo_matrix((np.ones(len(row)), (row, col)), shape=(size, size), dtype=np.float32)
-
-    # A = coo_matrix(edge_weight, shape=(size, size), dtype=np.float32)
-    A = coo_matrix((np.ones(len(row)), (row, col)), shape=(size, size), dtype=np.float32)
+    A_NW = coo_matrix((np.ones(len(row)), (row, col)), shape=(size, size), dtype=np.float32)
+    A = coo_matrix(edge_weight, shape=(size, size), dtype=np.float32)
 
     diag = coo_matrix( (np.ones(size), (np.arange(size), np.arange(size))), shape=(size, size), dtype=np.float32)
     if gcn_appr:
@@ -153,8 +151,10 @@ gcn_appr = False, edge_weight = None,  is_weighted = False):
     dense_mat = A.toarray().astype(int)
     np.savetxt("A_coo.csv", dense_mat, delimiter="," , fmt='%i')
 
-    # A_sym = 0.5*(A_NW + A_NW.T) # symmetrized adjacency
-    A_sym = 0.5*(A + A.T) # symmetrized adjacency
+    if Nsym:
+        A_sym = 0.5*(A + A.T) # symmetrized adjacency
+    else:
+        A_sym = 0.5*(A_NW + A_NW.T) # symmetrized adjacency
 
     if norm:
         d = np.array(A_sym.sum(axis=0))[0] # out degree

@@ -51,6 +51,7 @@ def parse_args():
     parser.add_argument('-activation', '-a', action='store_true', help='if use activation function')
     parser.add_argument('--num_filter', type=int, default=1, help='num of filters')
     parser.add_argument('--randomseed', type=int, default=-1, help='if set random seed in training')
+    parser.add_argument('--Nsym', type=bool, default=False, help=' use a weighted adjacency matrix for A_sym')
     return parser.parse_args()
 
 def sparse_mx_to_torch_sparse_tensor(sparse_mx):
@@ -97,11 +98,11 @@ def main(args):
         L = data['L']
         X, label, train_mask, val_mask, test_mask = geometric_dataset_sparse(args.q, args.K, 
                         root=args.data_path+args.dataset, subset=subset,
-                        dataset = load_func, load_only = True, save_pk = False)
+                        dataset = load_func, load_only = True, save_pk = False, Nsym=args.Nsym)
     else:
         X, label, train_mask, val_mask, test_mask, L = geometric_dataset_sparse(args.q, args.K, 
                                 root=args.data_path+args.dataset, subset=subset,
-                                dataset = load_func, load_only = False, save_pk = True)
+                                dataset = load_func, load_only = False, save_pk = True, Nsym=args.Nsym)
   
     # normalize label, the minimum should be 0 as class index
     _label_ = label - np.amin(label)
