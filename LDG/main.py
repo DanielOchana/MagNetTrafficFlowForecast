@@ -16,6 +16,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 # from social_data_loader import SocialEvolutionDataset
 # from github_data_loader import GithubDataset
 from example_data_loader import ExampleDataset
+from traffic_data_loader import TrafficDataset
 from utils import *
 from dyrep import DyRep
 from freq import FreqBaseline
@@ -101,7 +102,8 @@ def test(model, n_test_batches=10, epoch=0):
             u, v, k = data[0], data[1], data[3]
 
             time_cur = data[5]
-            m, h = MAR(A_pred, u, v, k, Survival_term=Survival_term, freq_prior=freq.H_train_norm if args.freq else None)
+            # m, h = MAR(A_pred, u, v, k, Survival_term=Survival_term, freq_prior=freq.H_train_norm if args.freq else None)
+            m, h = MAR(A_pred, u, v, k, Survival_term=Survival_term, freq_prior= None)
             assert len(time_cur) == len(m) == len(h) == len(k)
             for t, m, h, k_ in zip(time_cur, m, h, k):
                 d = datetime.datetime.fromtimestamp(t.item()).toordinal()
@@ -200,7 +202,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='DyGraphs Training Parameters')
     parser.add_argument('--data_dir', type=str, default='./')
-    parser.add_argument('--dataset', type=str, default='social', choices=['social', 'github', 'example'])
+    parser.add_argument('--dataset', type=str, default='social', choices=['social', 'github', 'example','traffic'])
     parser.add_argument('--prob', default=0.8, help='filter events by this probability value in the Social Evolution data')
     parser.add_argument('--batch_size', type=int, default=200, help='batch size (sequence length)')
     parser.add_argument('--n_hid', type=int, default=32, help='hidden layer size')
@@ -276,9 +278,14 @@ if __name__ == '__main__':
         test_set = ExampleDataset('test')
         initial_embeddings = np.random.randn(train_set.N_nodes, args.n_hid)
         A_initial = train_set.get_Adjacency()[0]
+    elif args.dataset == 'traffic':
+        train_set = TrafficDataset('train')
+        test_set = TrafficDataset('test')
+        initial_embeddings = np.random.randn(train_set.N_nodes, args.n_hid)
+        A_initial = train_set.get_Adjacency()[0]
     else:
         raise NotImplementedError(args.dataset)
-
+    print('debug1')
     def initalize_state(dataset, keepS=False):
         '''Initializes node embeddings and the graph to the original state after every epoch'''
 
@@ -297,15 +304,16 @@ if __name__ == '__main__':
         if args.verbose:
             print('Adj_all', Adj_all.shape, len(node_degree_global), node_degree_global[0].min(), node_degree_global[0].max())
         time_bar = np.zeros((dataset.N_nodes, 1)) + dataset.FIRST_DATE.timestamp()
-
+        # print('timebar' , dataset.N_nodes, time_bar.shape)
         model.initialize(node_embeddings=initial_embeddings,
                          A_initial=Adj_all, keepS=keepS)  # train_loader.dataset.H_train
 
 
         model.to(args.device)
         return time_bar, node_degree_global
-
+    print('debug2')
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=False)
+    print('debug3')
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
     # freq = FreqBaseline(train_set, test_set, verbose=args.verbose)
@@ -370,13 +378,10 @@ if __name__ == '__main__':
         test_loader.dataset.time_bar = time_bar
 
         start = time.time()
-
         for batch_idx, data_batch in enumerate(train_loader):
-
             if resume and batch_idx <= batch_start:
                 continue
             model.train()
-
             optimizer.zero_grad()
             data_batch[2] = data_batch[2].float().to(args.device)
             data_batch[4] = data_batch[4].double().to(args.device)
@@ -457,7 +462,7 @@ if __name__ == '__main__':
                 if args.verbose:
                     print('time', datetime.datetime.fromtimestamp(np.max(time_bar)))
                 save_checkpoint(batch_idx + 1, epoch)
-
+                print('debug7')
                 result = test(model, n_test_batches=None if batch_idx == len(train_loader) - 1 else 10, epoch=epoch)
                 test_MAR.append(np.mean(result[0]['Com']))
                 test_HITS10.append(np.mean(result[1]['Com']))

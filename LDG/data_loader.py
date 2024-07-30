@@ -62,14 +62,16 @@ class EventsDataset(torch.utils.data.Dataset):
             else:
                 raise ValueError('unexpected result', t, self.FIRST_DATE)
             self.time_bar[j] = time_cur.timestamp()  # last time stamp for nodes u and v
+            
 
         k = self.event_types_num[rel]
 
         # sanity checks
         assert np.float64(time_cur.timestamp()) == time_cur.timestamp(), (
         np.float64(time_cur.timestamp()), time_cur.timestamp())
+        time_cur_temp = time_cur 
         time_cur = np.float64(time_cur.timestamp())
         time_bar = time_bar.astype(np.float64)
         time_cur = torch.from_numpy(np.array([time_cur])).double()
-        assert time_bar.max() <= time_cur, (time_bar.max(), time_cur)
+        assert time_bar.max() <= time_cur, (time_bar.max(), time_cur, time_cur_temp)
         return u, v, time_delta_uv, k, time_bar, time_cur
