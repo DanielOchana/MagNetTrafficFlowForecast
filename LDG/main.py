@@ -13,8 +13,8 @@ import argparse
 import platform
 import subprocess
 from sklearn.metrics import roc_auc_score, average_precision_score
-from social_data_loader import SocialEvolutionDataset
-from github_data_loader import GithubDataset
+# from social_data_loader import SocialEvolutionDataset
+# from github_data_loader import GithubDataset
 from example_data_loader import ExampleDataset
 from utils import *
 from dyrep import DyRep
@@ -308,7 +308,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
 
-    freq = FreqBaseline(train_set, test_set, verbose=args.verbose)
+    # freq = FreqBaseline(train_set, test_set, verbose=args.verbose)
 
     model = DyRep(node_embeddings=initial_embeddings,
                   N_nodes=train_set.N_nodes,
@@ -323,7 +323,8 @@ if __name__ == '__main__':
                   device=args.device,
                   model=args.model,
                   soft_attn=args.soft_attn,
-                  freq=freq.H_train_norm if args.freq else None,
+                #   freq= freq.H_train_norm if args.freq else None,
+                  freq=  None,
                   verbose=args.verbose,
                   node_degree_global=None).to(args.device)
 

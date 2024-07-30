@@ -57,7 +57,7 @@ class EventsDataset(torch.utils.data.Dataset):
                                              td.seconds // 3600,  # hours, max 24
                                              (td.seconds // 60) % 60,  # minutes, max 60
                                              td.seconds % 60],  # seconds, max 60
-                                            np.float)
+                                            float)
                 # assert time_delta_uv.min() >= 0, (index, tpl, time_delta_uv[c], node_global_time[j])
             else:
                 raise ValueError('unexpected result', t, self.FIRST_DATE)

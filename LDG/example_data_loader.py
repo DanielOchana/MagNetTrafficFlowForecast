@@ -2,6 +2,7 @@ import numpy as np
 import datetime
 from datetime import datetime, timezone
 from data_loader import EventsDataset
+import pandas
 
 
 class ExampleDataset(EventsDataset):
@@ -45,18 +46,24 @@ class ExampleDataset(EventsDataset):
 
 
 
-        self.A_initial = np.loadtxt('data_common_slots_csv/adj_matrices/Adj_0.csv', delimiter=',')
-        self.A_last = np.loadtxt('data_common_slots_csv/adj_matrices/Adj_17.csv', delimiter=',')
+        self.A_initial = pandas.read_csv('../non_directed_graph_info/Adj_0.csv', delimiter=',')
+        self.A_last = pandas.read_csv('../non_directed_graph_info/Adj_17.csv', delimiter=',')
         self.N_nodes = self.A_last.shape[1]
+        self.A_initial = np.array(self.A_initial)
+        self.A_last = np.array(self.A_last)
 
         print('\nA_initial', np.sum(self.A_initial))
         print('A_last', np.sum(self.A_last), '\n')
-
+        print(self.A_initial.shape, self.A_last.shape)
         
         all_events = []
-        edges_info = np.loadtxt('non_directed_graph_info/ID_edges_info.csv', delimiter=',')
-        all_events = edges_info.tolist()
+        # edges_info = np.loadtxt('../non_directed_graph_info/ID_edges_info.csv', delimiter=',')
+        csv = pandas.read_csv('../non_directed_graph_info/ID_edges_info.csv')
 
+        to_date2 = lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S')
+        all_events = [(data[0], data[1],0, to_date2(data[2])) for data in csv.values]
+
+        print('all_events', len(all_events), all_events[0])
         self.event_types = ['communication event']
 
         self.all_events = sorted(all_events, key=lambda t: t[3].timestamp())
@@ -65,11 +72,12 @@ class ExampleDataset(EventsDataset):
         # print('%d communication events' % (len([t for t in self.all_events if t[2] == 1])))
         # print('%d assocition events' % (len([t for t in self.all_events if t[2] == 0])))
 
-        self.event_types_num = {'association event': 0}
-        k = 1  # k >= 1 for communication events
-        for t in self.event_types:
-            self.event_types_num[t] = k
-            # k += 1
+        # self.event_types_num = {'communication event': 0}
+        # k = 1  # k >= 1 for communication events
+        # for t in self.event_types:
+        #     self.event_types_num[t] = k
+        #     # k += 1
+        self.event_types_num = {event: idx for idx, event in enumerate(self.event_types)}
 
         self.n_events = len(self.all_events)
 
