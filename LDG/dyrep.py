@@ -52,6 +52,7 @@ class DyRep(nn.Module):
         self.node_degree_global = node_degree_global
 
         self.N_nodes = A_initial.shape[0]
+        print('num of nodes is: ', self.N_nodes)
         if A_initial is not None and len(A_initial.shape) == 2:
             A_initial = A_initial[:, :, None]
 

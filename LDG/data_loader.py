@@ -49,7 +49,8 @@ class EventsDataset(torch.utils.data.Dataset):
         assert u != v, (tpl, rel)
 
         for c, j in enumerate([u, v]):
-            t = datetime.fromtimestamp(self.time_bar[j], tz=self.TZ)
+            # print('self.time_bar[j]',self.time_bar[j][0])
+            t = datetime.fromtimestamp(self.time_bar[j][0], tz=self.TZ)
             if t.toordinal() >= self.FIRST_DATE.toordinal():  # assume no events before FIRST_DATE
                 td = time_cur - t
                 time_delta_uv[c] = np.array([td.days,  # total number of days, still can be a big number
