@@ -4308,3 +4308,7 @@ src/A_coo.csv
 src/utils/__pycache__/preprocess.cpython-38.pyc
 src/utils/__pycache__/hermitian.cpython-38.pyc
 src/A_coo.csv
+LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_708937_epoch2_batch50.pth.tar
+LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_708937_epoch3_batch50.pth.tar
+LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_708937_epoch4_batch50.pth.tar
+LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_708937_epoch5_batch50.pth.tar
