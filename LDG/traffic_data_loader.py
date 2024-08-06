@@ -46,8 +46,8 @@ class TrafficDataset(EventsDataset):
 
 
 
-        self.A_initial = pandas.read_csv('../non_directed_graph_info/Adj_0.csv', delimiter=',')
-        self.A_last = pandas.read_csv('../non_directed_graph_info/Adj_17.csv', delimiter=',')
+        self.A_initial = pandas.read_csv('../data_common_slots_csv/adj_matrices/Adj_0.csv', delimiter=',')
+        self.A_last = pandas.read_csv('../data_common_slots_csv/adj_matrices/Adj_17.csv', delimiter=',')
         self.N_nodes = self.A_last.shape[1]
         self.A_initial = np.array(self.A_initial)
         self.A_last = np.array(self.A_last)
@@ -58,7 +58,7 @@ class TrafficDataset(EventsDataset):
         
         all_events = []
         # edges_info = np.loadtxt('../non_directed_graph_info/ID_edges_info.csv', delimiter=',')
-        csv = pandas.read_csv('../non_directed_graph_info/ID_edges_info.csv')
+        csv = pandas.read_csv('../edges_info.csv')
 
         to_date2 = lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S')
         all_events = [(data[0]-1, data[1]-1,'communication event', to_date2(data[2])) for data in csv.values]
