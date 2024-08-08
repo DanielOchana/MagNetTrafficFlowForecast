@@ -58,13 +58,13 @@ class TrafficDataset(EventsDataset):
         
         all_events = []
         # edges_info = np.loadtxt('../non_directed_graph_info/ID_edges_info.csv', delimiter=',')
-        csv = pandas.read_csv('../edges_info.csv')
+        csv = pandas.read_csv('../non_directed_graph_info/edges_info.csv')
 
         to_date2 = lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S')
-        all_events = [(data[0]-1, data[1]-1,'communication event', to_date2(data[2])) for data in csv.values]
+        all_events = [(data[0]-1, data[1]-1,'assocition event', to_date2(data[2])) for data in csv.values]
 
         print('all_events', len(all_events), all_events[0])
-        self.event_types = ['communication event']
+        self.event_types = ['assocition event']
 
         self.all_events = sorted(all_events, key=lambda t: t[3].timestamp())
         self.all_events = sorted(all_events, key=lambda t: t[3].timestamp())
@@ -93,4 +93,4 @@ class TrafficDataset(EventsDataset):
     def get_Adjacency(self, multirelations=False):
         if multirelations:
             print('warning: this dataset has only one relation type, so multirelations are ignored')
-        return self.A_initial, ['communication event'], self.A_last
+        return self.A_initial, ['assocition event'], self.A_last
