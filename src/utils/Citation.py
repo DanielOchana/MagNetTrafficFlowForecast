@@ -220,12 +220,12 @@ def load_npz(file_name):
 
         X = sp.csr_matrix(loader['features'])
 
-        z = loader['labels']
+        # z = loader['labels']
 
         graph = {
             'A': A,
             'X': X,
-            'z': z
+            #'z': z
         }
 
         return graph

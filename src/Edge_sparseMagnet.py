@@ -15,7 +15,6 @@ from layer.sparse_magnet import *
 from utils.edge_data import generate_dataset_2class, generate_dataset_3class, in_out_degree, link_prediction_evaluation
 from utils.preprocess import to_edge_dataset_sparse, load_edge_index, load_syn
 from utils.save_settings import write_log
-from utils.Citation import load_citation_link
 from utils.Citation import load_traffic_link
 
 # select cuda device if available
@@ -89,7 +88,7 @@ def main(args):
         #load telegram/synthetic here
     elif load_func == 'traffic':
         load_func = load_traffic_link
-        dataset = load_traffic_link(root=args.data_path)
+        dataset = load_traffic_link(root=args.data_path + args.dataset)
     else:
         dataset = load_syn(args.data_path + args.dataset, None)
 
@@ -100,6 +99,8 @@ def main(args):
     if 'dataset' in locals():
         data = dataset[0]
         edge_index = data.edge_index
+        # print('edge_index:', edge_index)
+        # print('edge_index shape:', edge_index.shape)
         feature = dataset[0].x.data
 
     size = torch.max(edge_index).item()+1
@@ -108,7 +109,7 @@ def main(args):
     #    datasets = generate_dataset_2class(edge_index, splits = 10, test_prob = args.drop_prob)
     #else:
     save_file = args.data_path + args.dataset + '/' + subset
-    datasets = generate_dataset_3class(edge_index, size, save_file, splits = 10, probs = args.split_prob, task=args.task, label_dim=args.num_class_link)
+    datasets = generate_dataset_3class( edge_index, size, save_file, adj = dataset[0].edge_weight , splits = 10, probs = args.split_prob, task=args.task, label_dim=args.num_class_link)
 
     if args.task != 2:
         results = np.zeros((10, 4))
@@ -119,7 +120,10 @@ def main(args):
         # get hermitian laplacian
         ########################################
         edges = datasets[i]['graph']
-        L = to_edge_dataset_sparse(args.q, edges, args.K, i, size, root=args.data_path+args.dataset, laplacian=True, norm=args.not_norm, gcn_appr = False, Nsym=args.Nsym)       
+        # print('edges:', edges)
+        # print('edges shape:', edges.shape)
+        edges_size = torch.max(edges).item()+1
+        L = to_edge_dataset_sparse(args.q, edges, args.K, i, edges_size, root=args.data_path+args.dataset, laplacian=True, norm=args.not_norm, gcn_appr = False, Nsym=args.Nsym, edge_weight = edges)      
         
         # convert dense laplacian to sparse matrix
         L_img = []

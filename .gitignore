@@ -4312,3 +4312,4 @@ LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_70
 LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_708937_epoch3_batch50.pth.tar
 LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_708937_epoch4_batch50.pth.tar
 LDG/results/checkpoints/checkpoint_dygraphs_sipl-gpu13-u.staff.technion.ac.il_708937_epoch5_batch50.pth.tar
+dataset/traffic/temporal/temporaltask2dim2prob15_5.pk

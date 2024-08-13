@@ -160,7 +160,7 @@ def undirected_label2directed_label(adj, edge_pairs, task):
         labels[neg_half] = -1
     return new_edge_pairs[labels >= 0], labels[labels >= 0]
 
-def generate_dataset_3class(edge_index, size, save_path, splits = 10, probs = [0.15, 0.05], task = 2, label_dim = 2):
+def generate_dataset_3class(edge_index, size, save_path, adj = None, splits = 10, probs = [0.15, 0.05], task = 2, label_dim = 2):
     save_file = save_path + 'task' + str(task) + 'dim'+ str(label_dim) + 'prob' + str(int(probs[0]*100)) + '_' + str(int(probs[1]*100)) + '.pk'
     if os.path.exists(save_file):
         print('File exists!')
@@ -173,7 +173,8 @@ def generate_dataset_3class(edge_index, size, save_path, splits = 10, probs = [0
     #edge_num = np.sum(A_dense)
     #print( "undirected rate:", 1.0*np.sum(A_dense * A_dense.T)/edge_num )
 
-    A = coo_matrix((np.ones(len(row)), (row, col)), shape=(size, size), dtype=np.float32).tocsr()
+    A = coo_matrix(adj, shape=(size, size), dtype=np.float32)
+    # coo_matrix((np.ones(len(row)), (row, col)), shape=(size, size), dtype=np.float32).tocsr()
     G = nx.from_scipy_sparse_matrix(A) # create an undirected graph based on the adjacency
 
     def iteration(ind):
