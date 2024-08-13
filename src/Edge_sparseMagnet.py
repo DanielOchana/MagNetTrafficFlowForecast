@@ -49,6 +49,7 @@ def parse_args():
 
     parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
     parser.add_argument('--l2', type=float, default=5e-4, help='l2 regularizer')
+    parser.add_argument('--Nsym', type=bool, default=False, help=' use a weighted adjacency matrix for A_sym')
     return parser.parse_args()
 
 def acc(pred, label):
@@ -118,7 +119,7 @@ def main(args):
         # get hermitian laplacian
         ########################################
         edges = datasets[i]['graph']
-        L = to_edge_dataset_sparse(args.q, edges, args.K, i, size, root=args.data_path+args.dataset, laplacian=True, norm=args.not_norm, gcn_appr = False)       
+        L = to_edge_dataset_sparse(args.q, edges, args.K, i, size, root=args.data_path+args.dataset, laplacian=True, norm=args.not_norm, gcn_appr = False, Nsym=args.Nsym)       
         
         # convert dense laplacian to sparse matrix
         L_img = []

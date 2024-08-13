@@ -6,4 +6,6 @@ cd ../src
 
 # python ./sparse_Magnet.py  --Nsym True --epochs 3000 --lr 0.005 --num_filter 16 --q 0.1 --log_path try_8_930  --data_path ../dataset/ --dataset traffic/spatial  --K 1  --layer 2 --dropout 0.5 -a 
 
-../parallel -j18 --resume-failed --results ../Output/spatial_2_classes_into_Nsym --joblog ../joblog/spatial_2_classes_into_Nsym  CUDA_VISIBLE_DEVICES=1  python ./sparse_Magnet.py  --Nsym True --epochs 3000 --lr {1} --num_filter {2} --q {3} --log_path try_8_930  --data_path ../dataset/ --dataset traffic/spatial  --K 1  --layer 2 --dropout 0.5 -a ::: 0.01 0.005 ::: 16 32  :::  0.05 0.1  0.2 
+#../parallel -j18 --resume-failed --results ../Output/spatial_2_classes_into_Nsym --joblog ../joblog/spatial_2_classes_into_Nsym  CUDA_VISIBLE_DEVICES=1  python ./sparse_Magnet.py  --Nsym True --epochs 3000 --lr {1} --num_filter {2} --q {3} --log_path try_8_930  --data_path ../dataset/ --dataset traffic/spatial  --K 1  --layer 2 --dropout 0.5 -a ::: 0.01 0.005 ::: 16 32  :::  0.05 0.1  0.2 
+
+python ./Edge_sparseMagnet.py --epochs 3000 --num_filter 32 --data_path ../dataset/ --dataset traffic/temporal --q 0.15 --K=1 --lr 1e-3 --split_prob=0.15,0.05  --dropout 0.5  --task 2 --log_path Link_pred_traffic Nsym True

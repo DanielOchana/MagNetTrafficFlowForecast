@@ -246,14 +246,14 @@ def to_edge_dataset(q, edge_index, K, data_split, size, root='../dataset/data/tm
     #pk.dump(multi_order_laplacian, open(save_name, 'wb'), protocol=pk.HIGHEST_PROTOCOL)
     return multi_order_laplacian
 
-def to_edge_dataset_sparse(q, edge_index, K, data_split, size, root='../dataset/data/tmp/', laplacian=True, norm=True, max_eigen = 2.0, gcn_appr = False):
+def to_edge_dataset_sparse(q, edge_index, K, data_split, size, root='../dataset/data/tmp/', laplacian=True, norm=True, max_eigen = 2.0, gcn_appr = False, Nsym=Nsym):
     save_name = root+'/edge_'+str(q)+'_'+str(K)+'_'+str(data_split)+'.pk'
     if os.path.isfile(save_name):
         multi_order_laplacian = pk.load(open(save_name, 'rb'))
         return multi_order_laplacian
 
     f_node, e_node = edge_index[0], edge_index[1]
-    L = hermitian_decomp_sparse(f_node, e_node, size, q, norm=True, laplacian=laplacian, max_eigen = 2.0, gcn_appr = gcn_appr)
+    L = hermitian_decomp_sparse(f_node, e_node, size, q, norm=True, laplacian=laplacian, edge_weight =edge_index, max_eigen = 2.0, gcn_appr = gcn_appr, Nsym=Nsym)
     multi_order_laplacian = cheb_poly_sparse(L, K)
 
     return multi_order_laplacian
