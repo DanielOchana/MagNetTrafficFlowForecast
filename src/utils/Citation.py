@@ -181,6 +181,18 @@ def traffic_datasets(root="./data", name = '', alpha=0.1, data_split = 10):
 
     return [data]
 
+def load_traffic_link(root="./data"):
+    g = load_npz(root + '/traffic.npz')
+    adj = g['A']
+    features = g['X']
+    coo = adj.tocoo()
+    values = coo.data
+    features = torch.from_numpy(features.todense()).float()
+    indices = np.vstack((coo.row, coo.col))
+    indices = torch.from_numpy(indices).long()
+    
+    data = Data(x=features, edge_index=indices, edge_weight=adj, y=None)
+    return [data]
 
 def load_npz(file_name):
     """Load a graph from a Numpy binary file.

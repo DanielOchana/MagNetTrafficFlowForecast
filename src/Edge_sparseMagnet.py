@@ -16,6 +16,7 @@ from utils.edge_data import generate_dataset_2class, generate_dataset_3class, in
 from utils.preprocess import to_edge_dataset_sparse, load_edge_index, load_syn
 from utils.save_settings import write_log
 from utils.Citation import load_citation_link
+from utils.Citation import load_traffic_link
 
 # select cuda device if available
 cuda_device = 0
@@ -27,7 +28,6 @@ def parse_args():
     parser.add_argument('--log_path', type=str, default='test', help='the path saving model.t7 and the training process, the name of folder will be log/(current time)')
     parser.add_argument('--data_path', type=str, default='../dataset/data/tmp/', help='data set folder, for default format see dataset/cora/cora.edges and cora.node_labels')
     parser.add_argument('--dataset', type=str, default='WebKB/Cornell', help='data set selection')
-    
     
     parser.add_argument('--split_prob', type=lambda s: [float(item) for item in s.split(',')], default="0.15,0.05", help='random drop for testing/validation/training edges (for 3-class classification only)')
     parser.add_argument('--task', type=int, default=2, help='2: 2-class classification 3: 3-class classification')
@@ -86,6 +86,9 @@ def main(args):
     elif load_func == 'citeseer':
         dataset = load_citation_link(root='../dataset/data/tmp/citeseer_npz/citeseer_npz.npz')
         #load telegram/synthetic here
+    elif load_func == 'traffic':
+        load_func = load_traffic_link
+        dataset = load_traffic_link(root=args.data_path)
     else:
         dataset = load_syn(args.data_path + args.dataset, None)
 
@@ -96,7 +99,7 @@ def main(args):
     if 'dataset' in locals():
         data = dataset[0]
         edge_index = data.edge_index
-        #feature = dataset[0].x.data
+        feature = dataset[0].x.data
 
     size = torch.max(edge_index).item()+1
     # generate edge index dataset
@@ -125,12 +128,12 @@ def main(args):
             L_real.append( sparse_mx_to_torch_sparse_tensor(L[ind_L].real).to(device) )
         
         # get feature
-        #X_img = feature.unsqueeze(0).to(device)
-        #X_real = feature.unsqueeze(0).to(device)
+        X_real = feature.unsqueeze(0).to(device)
+        X_img = feature.unsqueeze(0).to(device)
         #if args.dgrees == True:
-        X_img = in_out_degree(edges, size).to(device)
+        #X_img = in_out_degree(edges, size).to(device)
         #X_real = in_out_degree(edges, size).to(device)
-        X_real = X_img.clone()
+        #X_real = X_img.clone()
         #else:
         #    X_img  = torch.ones(L_real[0].shape[-1]).unsqueeze(-1).to(device)
         #    X_real = torch.ones(L_real[0].shape[-1]).unsqueeze(-1).to(device)
@@ -153,8 +156,8 @@ def main(args):
         y_test  = torch.from_numpy(y_test).long().to(device)
 
         train_index = torch.from_numpy(datasets[i]['train']['pairs']).to(device)
-        val_index = torch.from_numpy(datasets[i]['validate']['pairs']).to(device)
-        test_index = torch.from_numpy(datasets[i]['test']['pairs']).to(device)
+        val_index   = torch.from_numpy(datasets[i]['validate']['pairs']).to(device)
+        test_index  = torch.from_numpy(datasets[i]['test']['pairs']).to(device)
         #################################
         # Train/Validation/Test
         #################################
