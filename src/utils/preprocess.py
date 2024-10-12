@@ -253,7 +253,7 @@ def to_edge_dataset_sparse(q, edge_index, K, data_split, size, root='../dataset/
         return multi_order_laplacian
 
     f_node, e_node = edge_index[0], edge_index[1]
-    # print(f'f_node:{f_node} \n , f_node shape:{f_node.shape} \n, e_node:{e_node} \n, e_node shape:{e_node.shape} \n, size:{size} \n, edge_index:{edge_index} \n')
+    print(f'f_node: {f_node},\nf_node shape: {f_node.shape}, \ne_node: {e_node}, \ne_node shape: {e_node.shape} , \nsize: {size} , \nedge_index: {edge_index} \n')
     L = hermitian_decomp_sparse(f_node, e_node, size, q, norm=True, laplacian=laplacian, edge_weight =edge_weight, max_eigen = 2.0, gcn_appr = gcn_appr, Nsym=Nsym)
     multi_order_laplacian = cheb_poly_sparse(L, K)
 

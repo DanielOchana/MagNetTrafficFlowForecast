@@ -120,8 +120,8 @@ def main(args):
         # get hermitian laplacian
         ########################################
         edges = datasets[i]['graph']
-        # print('edges:', edges)
-        # print('edges shape:', edges.shape)
+        print('edges:', edges)
+        print('edges shape:', edges.shape)
         edges_size = torch.max(edges).item()+1
         L = to_edge_dataset_sparse(args.q, edges, args.K, i, edges_size, root=args.data_path+args.dataset, laplacian=True, norm=args.not_norm, gcn_appr = False, Nsym=args.Nsym, edge_weight = edges)      
         
