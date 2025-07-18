@@ -175,8 +175,8 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📧 Contact
 
-- **Daniel Ochana** - [GitHub](https://github.com/danielochana) | [Email](mailto:daniel.ochana@example.com)
-- **Michal Maya** - [GitHub](https://github.com/michalmaya) | [Email](mailto:michal.maya@example.com)
+- **Daniel Ochana** - [GitHub](https://github.com/danielochana) | [Email](mailto:danielochana@gmail.com)
+- **Michal Maya** - [GitHub](https://github.com/michalmaya) | [Email](mailto:michal.maya75@gmail.com)
 
 ## 📜 License
 
