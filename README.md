@@ -1,6 +1,6 @@
 # Traffic Flow Forecasting on Spatio-Temporal Data
 
-[![PDF](https://img.shields.io/badge/PDF-View%20Paper-red?style=flat-square&logo=adobe-acrobat-reader)](./MagNet_B%20(1).pdf)
+[![PDF](https://img.shields.io/badge/PDF-View%20Paper-red?style=flat-square&logo=adobe-acrobat-reader)](./Traffic%20Flow%20Forecasting%20on%20Spatio-Temporal%20Data.pdf)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square&logo=python)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-Latest-orange?style=flat-square&logo=pytorch)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
